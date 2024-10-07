@@ -1,0 +1,7 @@
+<h2>Select Your Role</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" name="role" value="farmer">I am a Farmer</button>
+    <button type="submit" name="role" value="processor">I am a Processor</button>
+</form>

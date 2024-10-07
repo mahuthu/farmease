@@ -1,0 +1,68 @@
+<form method="POST">
+    {% csrf_token %}
+
+    <label for="phone_number">Phone Number:</label>
+    <input type="text" name="phone_number" id="phone_number" required>
+
+    <label for="account_number">Account Number:</label>
+    <input type="text" name="account_number" id="account_number" required>
+
+    <!-- Product Dropdown -->
+    <label for="product">Select Product:</label>
+    <select name="product" id="product" required>
+        <option value="" disabled selected>Select Product</option>
+        {% for product in products %}
+            <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Service and Processor Dropdowns -->
+    <label for="service_processor">Select Service and Processor:</label>
+    <select name="service_processor" id="service_processor" required>
+        <option value="" disabled selected>Select Service and Processor</option>
+    </select>
+
+    <!-- Display Price and Minimum Amount -->
+    <div id="price-info" style="display: none;">
+        <label for="price_per_unit">Price per Unit:</label>
+        <input type="text" name="price_per_unit" id="price_per_unit" readonly>
+
+        <label for="min_amount">Minimum Amount:</label>
+        <input type="text" name="min_amount" id="min_amount" readonly>
+    </div>
+
+    <label for="quantity">Enter Quantity:</label>
+    <input type="text" name="quantity" id="quantity" required>
+
+    <button type="submit">Register</button>
+</form>
+
+<script>
+    // Fetch ProductService data based on selected product
+    document.getElementById('product').addEventListener('change', function() {
+        var productId = this.value;
+        fetch(`/api/get_product_services/?product_id=` + productId)
+        .then(response => response.json())
+        .then(data => {
+            var serviceProcessorSelect = document.getElementById('service_processor');
+            serviceProcessorSelect.innerHTML = '<option value="" disabled selected>Select Service and Processor</option>';
+            data.product_services.forEach(ps => {
+                serviceProcessorSelect.innerHTML += `
+                    <option value="${ps.id}" data-price="${ps.price_per_unit}" data-min="${ps.min_amount}">
+                        ${ps.service.name} - ${ps.processor.business_name}
+                    </option>
+                `;
+            });
+        });
+    });
+
+    // Display price and minimum amount based on selected service and processor
+    document.getElementById('service_processor').addEventListener('change', function() {
+        var selectedOption = this.options[this.selectedIndex];
+        document.getElementById('price_per_unit').value = selectedOption.getAttribute('data-price') || '';
+        document.getElementById('min_amount').value = selectedOption.getAttribute('data-min') || '';
+
+        // Show the price info section
+        document.getElementById('price-info').style.display = 'block';
+    });
+</script>

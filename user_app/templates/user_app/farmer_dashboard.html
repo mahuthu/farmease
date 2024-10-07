@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ request.user.farmer }}</h1>
+
+    <h2>Your Bookings</h2>
+
+    {% if bookings.exists %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Service</th>
+                    <th>Processor</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Total Price</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.product.name }}</td>
+                        <td>{{ booking.service.name }}</td>
+                        <td>{{ booking.processor.business_name }}</td>
+                        <td>{{ booking.quantity }}</td>
+                        <td>{{ booking.status }}</td>
+                        <td>{{booking.total_price}}</td>
+                        <td>{{ booking.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ booking.updated_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No bookings found.</p>
+    {% endif %}
+
+    <a href="{% url 'farmer_register' %}">Create New Booking</a>  <!-- Link to create a new booking -->
+</body>
+</html>

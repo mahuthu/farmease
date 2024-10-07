@@ -1,0 +1,45 @@
+.env# Python related
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+*.egg-info/
+*.egg
+*.whl
+
+# Django related
+*.log
+*.sqlite3
+db.sqlite3
+/media/
+staticfiles/
+static/
+
+# Environment variables
+.env
+
+# IDE and editor related
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+MANIFEST
+
+# Temporary files
+*.tmp
+*.temp
+
+# System files
+.DS_Store
+Thumbs.db

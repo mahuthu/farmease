@@ -1,0 +1,38 @@
+<h1>{{ processor.business_name }} Dashboard</h1>
+
+<p>License Number: {{ processor.license_no }}</p>
+
+<p>Certification: {{ processor.certification }}</p>
+
+<p>Contact Number: {{ processor.contact_number }}</p>
+
+<p>Address: {{ processor.address }}</p>
+
+<h2>Products and services</h2>
+<ul>
+
+    {% for service in services.all %}
+    <li>{{ service.product }}: {{ service.service }}</li>
+    {% endfor %}
+</ul>
+
+
+<h2>Bookings</h2>
+<ul>
+    {% for booking in bookings.all %}
+    <li>{{ booking.date }}:  {{booking.farmer}} {{ booking.product.name }} ({{ booking.service.name }})</li>
+    {% endfor %}
+</ul>
+<!-- <h2>Products</h2>
+<ul>
+    {% for product in processor.products.all %}
+    <li>{{ product.name }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Services</h2>
+<ul>
+    {% for service in product.services.all %}
+    <li>{{ service.name }} (Product: {{ service.product.name }})</li>
+    {% endfor %}
+</ul> -->

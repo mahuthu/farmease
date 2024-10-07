@@ -1,0 +1,83 @@
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="business_name" placeholder="Business Name" required>
+    <input type="text" name="license_no" placeholder="License Number" required>
+    <input type="text" name="certification" placeholder="Certification" required>
+    <input type="text" name="contact_number" placeholder="Contact Number" required>
+    <input type="text" name="address" placeholder="Address" required>
+
+    <label>Products:</label>
+    <select name="products" id="products" multiple onchange="updateServices()">
+        {% for product in products %}
+            <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Services:</label>
+    <div id="services-container"></div>  <!-- Container for dynamic services -->
+
+    <div id="service-fields"></div>  <!-- Container for dynamic fields for pricing -->
+
+    <button type="submit">Register</button>
+</form>
+
+<script>
+    const servicesData = {
+        {% for product in products %}
+            "{{ product.id }}": [
+                {% for service in services.all %}
+                    { 
+                        "id": "{{ service.id }}", 
+                        "name": "{{ service.name }}"
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    function updateServices() {
+        const selectedProducts = Array.from(document.getElementById('products').selectedOptions).map(option => option.value);
+        const servicesContainer = document.getElementById('services-container');
+        servicesContainer.innerHTML = '';  // Clear existing services
+
+        selectedProducts.forEach(productId => {
+            const servicesForProduct = servicesData[productId];
+            if (servicesForProduct) {
+                servicesForProduct.forEach(service => {
+                    // Create a checkbox for each service
+                    servicesContainer.innerHTML += `
+                        <div>
+                            <input type="checkbox" name="services" value="${service.id}" onchange="updatePriceFields()">
+                            <label>${service.name}</label>
+                        </div>
+                    `;
+                });
+            }
+        });
+    }
+
+    function updatePriceFields() {
+        const serviceFieldsContainer = document.getElementById('service-fields');
+        serviceFieldsContainer.innerHTML = '';  // Clear existing fields
+
+        const selectedServices = Array.from(document.querySelectorAll('input[name="services"]:checked'));
+
+        selectedServices.forEach(service => {
+            const serviceId = service.value;
+            const serviceName = service.nextElementSibling.innerText;  // Get service name from label
+            const productIds = Array.from(document.getElementById('products').selectedOptions).map(option => option.value);
+
+            productIds.forEach(productId => {
+                serviceFieldsContainer.innerHTML += `
+                    <div>
+                        <label for="price_per_unit_${productId}_${serviceId}">Price per Unit for ${serviceName} (Product ID: ${productId}):</label>
+                        <input type="number" name="price_per_unit_${productId}_${serviceId}" required>
+
+                        <label for="min_amount_${productId}_${serviceId}">Minimum Amount for ${serviceName} (Product ID: ${productId}):</label>
+                        <input type="number" name="min_amount_${productId}_${serviceId}" required>
+                    </div>
+                `;
+            });
+        });
+    }
+</script>
