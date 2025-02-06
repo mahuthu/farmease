@@ -1,7 +1,51 @@
-<h2>Select Your Role</h2>
+{% extends 'user_app/base.html' %}
 
-<form method="POST">
-    {% csrf_token %}
-    <button type="submit" name="role" value="farmer">I am a Farmer</button>
-    <button type="submit" name="role" value="processor">I am a Processor</button>
-</form>
+{% block title %}Choose Role - FarmEase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Select Your Role</h2>
+            <p class="text-center mb-4">Choose how you want to use FarmEase</p>
+
+            <form method="POST" class="row g-4">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <button type="submit" name="role" value="farmer" class="card h-100 border-0 bg-light text-center p-4 w-100">
+                        <div class="card-body">
+                            <i class="fas fa-tractor mb-3" style="font-size: 2rem;"></i>
+                            <h3>Farmer</h3>
+                            <p class="text-muted">I want to process my agricultural products</p>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" name="role" value="processor" class="card h-100 border-0 bg-light text-center p-4 w-100">
+                        <div class="card-body">
+                            <i class="fas fa-industry mb-3" style="font-size: 2rem;"></i>
+                            <h3>Processor</h3>
+                            <p class="text-muted">I provide processing services for agricultural products</p>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    button.card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        border: none;
+    }
+    button.card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

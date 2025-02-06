@@ -1,26 +1,43 @@
-<div class="container">
-    <h1>Register</h1>
-    
-    <form method="POST" action="">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Enter username" required>
-        </div>
+{% extends 'user_app/base.html' %}
 
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" placeholder="Enter email" required>
-        </div>
+{% block title %}Register - FarmEase{% endblock %}
 
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter password" required>
-        </div>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Create Account</h2>
+            <form method="POST" action="">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
 
-        <button type="submit">Register</button>
-    </form>
-    
-    <p>Already have an account? <a href="{% url 'login' %}">Login here</a>.</p>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+            
+            <p class="text-center mt-3">
+                Already have an account? <a href="{% url 'login' %}">Login here</a>
+            </p>
+        </div>
+    </div>
 </div>
+{% endblock %}

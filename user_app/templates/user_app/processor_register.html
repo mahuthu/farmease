@@ -1,26 +1,78 @@
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="business_name" placeholder="Business Name" required>
-    <input type="text" name="license_no" placeholder="License Number" required>
-    <input type="text" name="certification" placeholder="Certification" required>
-    <input type="text" name="contact_number" placeholder="Contact Number" required>
-    <input type="text" name="address" placeholder="Address" required>
+{% extends 'user_app/base.html' %}
 
-    <label>Products:</label>
-    <select name="products" id="products" multiple onchange="updateServices()">
-        {% for product in products %}
-            <option value="{{ product.id }}">{{ product.name }}</option>
-        {% endfor %}
-    </select>
+{% block title %}Processor Registration - FarmEase{% endblock %}
 
-    <label>Services:</label>
-    <div id="services-container"></div>  <!-- Container for dynamic services -->
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Complete Your Processor Profile</h2>
+                    
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="business_name" class="form-label">Business Name</label>
+                                <input type="text" class="form-control" name="business_name" id="business_name" required>
+                            </div>
 
-    <div id="service-fields"></div>  <!-- Container for dynamic fields for pricing -->
+                            <div class="col-md-6">
+                                <label for="license_no" class="form-label">License Number</label>
+                                <input type="text" class="form-control" name="license_no" id="license_no" required>
+                            </div>
 
-    <button type="submit">Register</button>
-</form>
+                            <div class="col-md-6">
+                                <label for="certification" class="form-label">Certification</label>
+                                <input type="text" class="form-control" name="certification" id="certification" required>
+                            </div>
 
+                            <div class="col-md-6">
+                                <label for="contact_number" class="form-label">Contact Number</label>
+                                <input type="tel" class="form-control" name="contact_number" id="contact_number" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" name="address" id="address" rows="3" required></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="products" class="form-label">Select Products</label>
+                                <select class="form-select" name="products" id="products" multiple required onchange="updateServices()">
+                                    {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Hold Ctrl/Cmd to select multiple products</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Available Services</label>
+                                <div id="services-container" class="border rounded p-3">
+                                    <!-- Services will be dynamically added here -->
+                                </div>
+                            </div>
+
+                            <div id="service-fields" class="col-12">
+                                <!-- Price fields will be dynamically added here -->
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary w-100">Complete Registration</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
     const servicesData = {
         {% for product in products %}
@@ -38,17 +90,24 @@
     function updateServices() {
         const selectedProducts = Array.from(document.getElementById('products').selectedOptions).map(option => option.value);
         const servicesContainer = document.getElementById('services-container');
-        servicesContainer.innerHTML = '';  // Clear existing services
+        servicesContainer.innerHTML = '';
 
         selectedProducts.forEach(productId => {
             const servicesForProduct = servicesData[productId];
             if (servicesForProduct) {
+                const productName = document.querySelector(`#products option[value="${productId}"]`).text;
+                servicesContainer.innerHTML += `<div class="mb-3"><strong>${productName}</strong></div>`;
+                
                 servicesForProduct.forEach(service => {
-                    // Create a checkbox for each service
                     servicesContainer.innerHTML += `
-                        <div>
-                            <input type="checkbox" name="services" value="${service.id}" onchange="updatePriceFields()">
-                            <label>${service.name}</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" 
+                                   name="services" value="${service.id}" 
+                                   id="service_${service.id}"
+                                   onchange="updatePriceFields()">
+                            <label class="form-check-label" for="service_${service.id}">
+                                ${service.name}
+                            </label>
                         </div>
                     `;
                 });
@@ -58,26 +117,50 @@
 
     function updatePriceFields() {
         const serviceFieldsContainer = document.getElementById('service-fields');
-        serviceFieldsContainer.innerHTML = '';  // Clear existing fields
+        serviceFieldsContainer.innerHTML = '';
 
         const selectedServices = Array.from(document.querySelectorAll('input[name="services"]:checked'));
+        const selectedProducts = Array.from(document.getElementById('products').selectedOptions);
+
+        if (selectedServices.length > 0) {
+            serviceFieldsContainer.innerHTML = '<h4 class="mt-4">Pricing Information</h4>';
+        }
 
         selectedServices.forEach(service => {
             const serviceId = service.value;
-            const serviceName = service.nextElementSibling.innerText;  // Get service name from label
-            const productIds = Array.from(document.getElementById('products').selectedOptions).map(option => option.value);
+            const serviceName = service.nextElementSibling.innerText;
 
-            productIds.forEach(productId => {
+            selectedProducts.forEach(product => {
+                const productId = product.value;
+                const productName = product.text;
+
                 serviceFieldsContainer.innerHTML += `
-                    <div>
-                        <label for="price_per_unit_${productId}_${serviceId}">Price per Unit for ${serviceName} (Product ID: ${productId}):</label>
-                        <input type="number" name="price_per_unit_${productId}_${serviceId}" required>
-
-                        <label for="min_amount_${productId}_${serviceId}">Minimum Amount for ${serviceName} (Product ID: ${productId}):</label>
-                        <input type="number" name="min_amount_${productId}_${serviceId}" required>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">${serviceName} for ${productName}</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="price_per_unit_${productId}_${serviceId}" class="form-label">
+                                        Price per Unit (Ksh)
+                                    </label>
+                                    <input type="number" class="form-control" 
+                                           name="price_per_unit_${productId}_${serviceId}"
+                                           id="price_per_unit_${productId}_${serviceId}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="min_amount_${productId}_${serviceId}" class="form-label">
+                                        Minimum Amount
+                                    </label>
+                                    <input type="number" class="form-control"
+                                           name="min_amount_${productId}_${serviceId}"
+                                           id="min_amount_${productId}_${serviceId}" required>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
         });
     }
 </script>
+{% endblock %}

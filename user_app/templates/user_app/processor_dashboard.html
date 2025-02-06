@@ -1,38 +1,134 @@
-<h1>{{ processor.business_name }} Dashboard</h1>
+{% extends 'user_app/base.html' %}
 
-<p>License Number: {{ processor.license_no }}</p>
+{% block title %}{{ processor.business_name }} - Dashboard{% endblock %}
 
-<p>Certification: {{ processor.certification }}</p>
+{% block content %}
+<div class="container py-4">
+    <!-- Processor Info Card -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Business Information</h2>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-building text-primary"></i>
+                            <strong>Business Name:</strong> {{ processor.business_name }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-id-card text-primary"></i>
+                            <strong>License:</strong> {{ processor.license_no }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-certificate text-primary"></i>
+                            <strong>Certification:</strong> {{ processor.certification }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-primary"></i>
+                            <strong>Contact:</strong> {{ processor.contact_number }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                            <strong>Address:</strong> {{ processor.address }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<p>Contact Number: {{ processor.contact_number }}</p>
+        <!-- Products and Services Card -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Products and Services</h2>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Service</th>
+                                    <th>Price per Unit</th>
+                                    <th>Minimum Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in services %}
+                                <tr>
+                                    <td>{{ service.product.name }}</td>
+                                    <td>{{ service.service.name }}</td>
+                                    <td>Ksh {{ service.price_per_unit }}</td>
+                                    <td>{{ service.min_amount }} units</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<p>Address: {{ processor.address }}</p>
+    <!-- Bookings Card -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Recent Bookings</h2>
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Farmer</th>
+                                        <th>Product</th>
+                                        <th>Service</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr>
+                                        <td>{{ booking.created_at|date:"M d, Y" }}</td>
+                                        <td>{{ booking.farmer.user.username }}</td>
+                                        <td>{{ booking.product.name }}</td>
+                                        <td>{{ booking.service.name }}</td>
+                                        <td>{{ booking.quantity }}</td>
+                                        <td>
+                                            <span class="badge {% if booking.status == 'pending' %}bg-warning
+                                                {% elif booking.status == 'confirmed' %}bg-info
+                                                {% elif booking.status == 'processing' %}bg-primary
+                                                {% elif booking.status == 'completed' %}bg-success
+                                                {% endif %}">
+                                                {{ booking.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary">Update Status</button>
+                                                <button class="btn btn-sm btn-outline-info">Details</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="lead text-muted">No bookings yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-<h2>Products and services</h2>
-<ul>
-
-    {% for service in services.all %}
-    <li>{{ service.product }}: {{ service.service }}</li>
-    {% endfor %}
-</ul>
-
-
-<h2>Bookings</h2>
-<ul>
-    {% for booking in bookings.all %}
-    <li>{{ booking.date }}:  {{booking.farmer}} {{ booking.product.name }} ({{ booking.service.name }})</li>
-    {% endfor %}
-</ul>
-<!-- <h2>Products</h2>
-<ul>
-    {% for product in processor.products.all %}
-    <li>{{ product.name }}</li>
-    {% endfor %}
-</ul>
-
-<h2>Services</h2>
-<ul>
-    {% for service in product.services.all %}
-    <li>{{ service.name }} (Product: {{ service.product.name }})</li>
-    {% endfor %}
-</ul> -->
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

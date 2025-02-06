@@ -1,5 +1,5 @@
 
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.shortcuts import render, redirect
 from .models import Processor, User, UserProfile, Farmer
 from processing.models import Service, Product, Booking, ProductService
@@ -63,12 +63,18 @@ def choose_role_view(request):
     return render(request, 'user_app/choose_role.html')
 
 def farmer_registration_view(request):
-    products = Product.objects.all()  # List of all products
-    services = Service.objects.none()  # No services initially
-    processors = Processor.objects.none()  # No processors initially
+    # Try to get existing farmer data
+    farmer = None
+    try:
+        farmer = request.user.farmer
+    except:
+        pass
+    
+    products = Product.objects.all()
+    services = Service.objects.none()
+    processors = Processor.objects.none()
     
     if request.method == "POST":
-        # Get phone number and account number from the form
         phone_number = request.POST.get('phone_number')
         account_number = request.POST.get('account_number')
 
@@ -76,41 +82,40 @@ def farmer_registration_view(request):
         farmer, created = Farmer.objects.get_or_create(user=request.user)
         farmer.phone_number = phone_number
         farmer.account_no = account_number
-        
+        farmer.save()
 
-        # Selected options from form
+        # Handle booking creation if product is selected
         selected_product = request.POST.get('product')
         selected_service_processor = request.POST.get('service_processor')
-        quantity = request.POST.get('quantity')  # Quantity input from the form
+        quantity = request.POST.get('quantity')
 
-        # Get the product, service, and processor objects based on selected IDs
-        # product = Product.objects.get(id=selected_product)
-        product_service = ProductService.objects.get(id=selected_service_processor)
+        if selected_product and selected_service_processor and quantity:
+            product_service = ProductService.objects.get(id=selected_service_processor)
+            price_per_unit = product_service.price_per_unit
+            total_price = price_per_unit * Decimal(quantity)
 
-        # Use price_per_unit from ProductService
-        price_per_unit = product_service.price_per_unit
-        total_price = price_per_unit * Decimal(quantity)
+            Booking.objects.create(
+                farmer=farmer,
+                product=product_service.product,
+                service=product_service.service,
+                processor=product_service.processor,
+                quantity=quantity,
+                price_per_unit=price_per_unit,
+                total_price=total_price,
+                status='pending'
+            )
+            
+            return redirect('farmer_dashboard')
 
-
-        # Create and save the booking
-        Booking.objects.create(
-            farmer=farmer,
-            product=product_service.product,  # Product is part of the ProductService
-            service=product_service.service,  # Service is part of the ProductService
-            processor=product_service.processor,  # Processor is part of the ProductService
-            quantity=quantity,
-            price_per_unit=price_per_unit,
-            total_price=total_price,  # Save the total price here
-            status='Pending'
-        )
-        
-        return redirect('farmer_dashboard')  # Redirect to farmer dashboard after registration
-
-    return render(request, 'user_app/farmer_register.html', {
+    context = {
         'products': products,
         'services': services,
-        'processors': processors
-    })
+        'processors': processors,
+        'farmer': farmer,
+        'is_booking': 'booking' in request.GET  # Check if this is a booking request
+    }
+    
+    return render(request, 'user_app/farmer_register.html', context)
 
 def processor_registration_view(request):
     products = Product.objects.all()  # Fetch all products
@@ -198,3 +203,8 @@ def processor_dashboard_view(request):
         'services': services,
         'processor':processor,
     })
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+

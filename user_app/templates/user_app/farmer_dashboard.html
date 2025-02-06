@@ -1,48 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Dashboard</title>
-</head>
-<body>
-    <h1>Welcome, {{ request.user.farmer }}</h1>
+{% extends 'user_app/base.html' %}
 
-    <h2>Your Bookings</h2>
+{% block title %}Farmer Dashboard - FarmEase{% endblock %}
 
-    {% if bookings.exists %}
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Service</th>
-                    <th>Processor</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
-                    <th>Total Price</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in bookings %}
-                    <tr>
-                        <td>{{ booking.product.name }}</td>
-                        <td>{{ booking.service.name }}</td>
-                        <td>{{ booking.processor.business_name }}</td>
-                        <td>{{ booking.quantity }}</td>
-                        <td>{{ booking.status }}</td>
-                        <td>{{booking.total_price}}</td>
-                        <td>{{ booking.created_at|date:"Y-m-d H:i" }}</td>
-                        <td>{{ booking.updated_at|date:"Y-m-d H:i" }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No bookings found.</p>
-    {% endif %}
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">Welcome, {{ request.user.farmer }}</h1>
+                    <a href="{% url 'farmer_register' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus-circle"></i> Create New Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <a href="{% url 'farmer_register' %}">Create New Booking</a>  <!-- Link to create a new booking -->
-</body>
-</html>
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Your Bookings</h2>
+                    
+                    {% if bookings.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Service</th>
+                                        <th>Processor</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                        <th>Total Price</th>
+                                        <th>Created</th>
+                                        <th>Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                        <tr>
+                                            <td>{{ booking.product.name }}</td>
+                                            <td>{{ booking.service.name }}</td>
+                                            <td>{{ booking.processor.business_name }}</td>
+                                            <td>{{ booking.quantity }}</td>
+                                            <td>
+                                                <span class="badge {% if booking.status == 'pending' %}bg-warning
+                                                    {% elif booking.status == 'confirmed' %}bg-info
+                                                    {% elif booking.status == 'processing' %}bg-primary
+                                                    {% elif booking.status == 'completed' %}bg-success
+                                                    {% endif %}">
+                                                    {{ booking.status|title }}
+                                                </span>
+                                            </td>
+                                            <td>Ksh {{ booking.total_price }}</td>
+                                            <td>{{ booking.created_at|date:"M d, Y" }}</td>
+                                            <td>{{ booking.updated_at|date:"M d, Y" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="lead text-muted">No bookings found.</p>
+                            <a href="{% url 'farmer_register' %}" class="btn btn-primary">
+                                Create Your First Booking
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

@@ -1,68 +1,176 @@
-<form method="POST">
-    {% csrf_token %}
+{% extends 'user_app/base.html' %}
 
-    <label for="phone_number">Phone Number:</label>
-    <input type="text" name="phone_number" id="phone_number" required>
+{% block title %}
+    {% if is_booking %}Create Booking{% else %}Farmer Profile{% endif %} - FarmEase
+{% endblock %}
 
-    <label for="account_number">Account Number:</label>
-    <input type="text" name="account_number" id="account_number" required>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">
+                {% if farmer %}
+                    Create New Booking
+                {% else %}
+                    Complete Your Farmer Profile
+                {% endif %}
+            </h2>
+            
+            <form method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
 
-    <!-- Product Dropdown -->
-    <label for="product">Select Product:</label>
-    <select name="product" id="product" required>
-        <option value="" disabled selected>Select Product</option>
-        {% for product in products %}
-            <option value="{{ product.id }}">{{ product.name }}</option>
-        {% endfor %}
-    </select>
+                <div class="row g-3">
+                    <!-- Farmer Information Section -->
+                    <div class="col-12 mb-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Your Information</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="phone_number" class="form-label">Phone Number</label>
+                                        <input type="tel" 
+                                               class="form-control" 
+                                               name="phone_number" 
+                                               id="phone_number" 
+                                               value="{{ farmer.phone_number|default:'' }}"
+                                               required>
+                                        <div class="form-text">Current: {{ farmer.phone_number|default:'Not set' }}</div>
+                                    </div>
 
-    <!-- Service and Processor Dropdowns -->
-    <label for="service_processor">Select Service and Processor:</label>
-    <select name="service_processor" id="service_processor" required>
-        <option value="" disabled selected>Select Service and Processor</option>
-    </select>
+                                    <div class="col-md-6">
+                                        <label for="account_number" class="form-label">Account Number</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               name="account_number" 
+                                               id="account_number" 
+                                               value="{{ farmer.account_no|default:'' }}"
+                                               required>
+                                        <div class="form-text">Current: {{ farmer.account_no|default:'Not set' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Display Price and Minimum Amount -->
-    <div id="price-info" style="display: none;">
-        <label for="price_per_unit">Price per Unit:</label>
-        <input type="text" name="price_per_unit" id="price_per_unit" readonly>
+                    <!-- Booking Section -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Booking Details</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="product" class="form-label">Select Product</label>
+                                        <select class="form-select" name="product" id="product" required>
+                                            <option value="" disabled selected>Choose a product...</option>
+                                            {% for product in products %}
+                                                <option value="{{ product.id }}">{{ product.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
 
-        <label for="min_amount">Minimum Amount:</label>
-        <input type="text" name="min_amount" id="min_amount" readonly>
+                                    <div class="col-md-6">
+                                        <label for="service_processor" class="form-label">Select Service and Processor</label>
+                                        <select class="form-select" name="service_processor" id="service_processor" required disabled>
+                                            <option value="" disabled selected>First select a product...</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="price-info" class="col-12" style="display: none;">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Price per Unit</label>
+                                                        <input type="text" class="form-control" id="price_per_unit" readonly>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Minimum Amount</label>
+                                                        <input type="text" class="form-control" id="min_amount" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="quantity" class="form-label">Quantity</label>
+                                        <input type="number" class="form-control" name="quantity" id="quantity" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary w-100">
+                            {% if farmer %}
+                                Create Booking
+                            {% else %}
+                                Complete Registration
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
+{% endblock %}
 
-    <label for="quantity">Enter Quantity:</label>
-    <input type="text" name="quantity" id="quantity" required>
-
-    <button type="submit">Register</button>
-</form>
-
+{% block javascript %}
 <script>
-    // Fetch ProductService data based on selected product
-    document.getElementById('product').addEventListener('change', function() {
-        var productId = this.value;
-        fetch(`/api/get_product_services/?product_id=` + productId)
-        .then(response => response.json())
-        .then(data => {
-            var serviceProcessorSelect = document.getElementById('service_processor');
+    document.addEventListener('DOMContentLoaded', function() {
+        const productSelect = document.getElementById('product');
+        const serviceProcessorSelect = document.getElementById('service_processor');
+        const priceInfo = document.getElementById('price-info');
+
+        // Fetch ProductService data based on selected product
+        productSelect.addEventListener('change', function() {
+            const productId = this.value;
+            
+            // Reset service processor select
             serviceProcessorSelect.innerHTML = '<option value="" disabled selected>Select Service and Processor</option>';
-            data.product_services.forEach(ps => {
-                serviceProcessorSelect.innerHTML += `
-                    <option value="${ps.id}" data-price="${ps.price_per_unit}" data-min="${ps.min_amount}">
-                        ${ps.service.name} - ${ps.processor.business_name}
-                    </option>
-                `;
-            });
+            serviceProcessorSelect.disabled = true;
+            priceInfo.style.display = 'none';
+
+            if (!productId) return;
+
+            fetch(`/api/get_product_services/?product_id=${productId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.product_services && data.product_services.length > 0) {
+                        data.product_services.forEach(ps => {
+                            const option = document.createElement('option');
+                            option.value = ps.id;
+                            option.textContent = `${ps.service.name} - ${ps.processor.business_name}`;
+                            option.dataset.price = ps.price_per_unit;
+                            option.dataset.min = ps.min_amount;
+                            serviceProcessorSelect.appendChild(option);
+                        });
+                        serviceProcessorSelect.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching product services:', error);
+                });
+        });
+
+        // Display price and minimum amount based on selected service and processor
+        serviceProcessorSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && !selectedOption.disabled) {
+                document.getElementById('price_per_unit').value = selectedOption.dataset.price || '';
+                document.getElementById('min_amount').value = selectedOption.dataset.min || '';
+                priceInfo.style.display = 'block';
+            } else {
+                priceInfo.style.display = 'none';
+            }
         });
     });
-
-    // Display price and minimum amount based on selected service and processor
-    document.getElementById('service_processor').addEventListener('change', function() {
-        var selectedOption = this.options[this.selectedIndex];
-        document.getElementById('price_per_unit').value = selectedOption.getAttribute('data-price') || '';
-        document.getElementById('min_amount').value = selectedOption.getAttribute('data-min') || '';
-
-        // Show the price info section
-        document.getElementById('price-info').style.display = 'block';
-    });
 </script>
+{% endblock %}
