@@ -5,6 +5,7 @@ from .models import Processor, User, UserProfile, Farmer
 from processing.models import Service, Product, Booking, ProductService
 from django.http import JsonResponse
 from decimal import Decimal
+from django.db.models import Prefetch, Count
 
 
 
@@ -208,3 +209,33 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+def home_view(request):
+    # Fetch all processors with their related services and products efficiently
+    processors = Processor.objects.prefetch_related(
+        Prefetch(
+            'product_services',
+            queryset=ProductService.objects.select_related('product', 'service')
+        )
+    ).all()
+
+    # Get unique products and services for filtering
+    products = Product.objects.all()
+    services = Service.objects.all()
+
+    # Get some statistics for the homepage
+    stats = {
+        'processor_count': Processor.objects.count(),
+        'farmer_count': Farmer.objects.count(),
+        'booking_count': Booking.objects.count(),
+        'product_count': Product.objects.count(),
+    }
+
+    context = {
+        'processors': processors,
+        'products': products,
+        'services': services,
+        'stats': stats,
+        'featured_processors': processors[:3],  # Get first 3 processors for featured section
+    }
+    
+    return render(request, 'user_app/home.html', context)
