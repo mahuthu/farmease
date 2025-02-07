@@ -3,8 +3,11 @@
 {% block title %}FarmEase - Connecting Farmers with Processors{% endblock %}
 
 {% block content %}
+
+{% load static %}
+
 <!-- Hero Section -->
-<div class="hero bg-primary text-white py-5">
+<div class="hero bg-primary text-black py-5">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
@@ -12,47 +15,55 @@
                 <p class="lead mb-4">Connecting farmers with agricultural processors for efficient post-harvest solutions.</p>
                 {% if not user.is_authenticated %}
                     <div class="d-flex gap-3">
-                        <a href="{% url 'login' %}" class="btn btn-light btn-lg">Login</a>
-                        <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">Register</a>
+                        <a href="{% url 'login' %}" class="btn btn-dark ">Login</a>
+                        <a href="{% url 'register' %}" class="btn btn-light text-dark">Register</a>
                     </div>
                 {% endif %}
             </div>
             <div class="col-lg-6">
-                <img src="https://placehold.co/600x400" alt="FarmEase" class="img-fluid rounded shadow">
+                <img src="{% static 'user_app/coffee3.jpg' %}" alt="Logo">
             </div>
         </div>
     </div>
 </div>
 
-<!-- Services Section -->
-<section class="py-5">
+<!-- Statistics Section -->
+<section class="py-4 bg-light">
     <div class="container">
-        <h2 class="text-center mb-5">Our Services</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
                 <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-tractor fa-3x text-primary mb-3"></i>
-                        <h3 class="card-title">For Farmers</h3>
-                        <p class="card-text">Access a network of verified processors for your agricultural products. Compare prices and book services easily.</p>
+                    <div class="card-body">
+                        <i class="fas fa-users fa-2x text-primary mb-3"></i>
+                        <h3 class="card-title">{{ stats.farmer_count }}</h3>
+                        <p class="text-muted">Registered Farmers</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-industry fa-3x text-primary mb-3"></i>
-                        <h3 class="card-title">For Processors</h3>
-                        <p class="card-text">List your processing services and connect with farmers. Manage bookings efficiently.</p>
+                    <div class="card-body">
+                        <i class="fas fa-industry fa-2x text-primary mb-3"></i>
+                        <h3 class="card-title">{{ stats.processor_count }}</h3>
+                        <p class="text-muted">Active Processors</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
-                        <h3 class="card-title">Easy Booking</h3>
-                        <p class="card-text">Simple and transparent booking system with real-time updates and notifications.</p>
+                    <div class="card-body">
+                        <i class="fas fa-box fa-2x text-primary mb-3"></i>
+                        <h3 class="card-title">{{ stats.product_count }}</h3>
+                        <p class="text-muted">Products Processed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-check fa-2x text-primary mb-3"></i>
+                        <h3 class="card-title">{{ stats.booking_count }}</h3>
+                        <p class="text-muted">Successful Bookings</p>
                     </div>
                 </div>
             </div>
@@ -60,44 +71,82 @@
     </div>
 </section>
 
-<!-- Available Processors Section -->
+<!-- Services Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Services</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card service-card h-100 border-0">
+                    <div class="card-img-wrapper">
+                        <img src="{% static 'user_app/farmer.jpg' %}" class="card-img-top" alt="Farmers Service">
+                        <div class="card-img-overlay d-flex align-items-end">
+                            <div class="overlay-content text-white p-3">
+                                <h3 class="card-title">For Farmers</h3>
+                                <p class="card-text">Access a network of verified processors for your agricultural products. Compare prices and book services easily.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card service-card h-100 border-0">
+                    <div class="card-img-wrapper">
+                        <img src="{% static 'user_app/processor.jpg' %}" class="card-img-top" alt="Processors Service">
+                        <div class="card-img-overlay d-flex align-items-end">
+                            <div class="overlay-content text-white p-3">
+                                <h3 class="card-title">For Processors</h3>
+                                <p class="card-text">List your processing services and connect with farmers. Manage bookings efficiently.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card service-card h-100 border-0">
+                    <div class="card-img-wrapper">
+                        <img src="{% static 'user_app/booking.jpeg' %}" class="card-img-top" alt="Easy Booking">
+                        <div class="card-img-overlay d-flex align-items-end">
+                            <div class="overlay-content text-white p-3">
+                                <h3 class="card-title">Easy Booking</h3>
+                                <p class="card-text">Simple and transparent booking system with real-time updates and notifications.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card service-card h-100 border-0">
+                    <div class="card-img-wrapper">
+                        <img src="{% static 'user_app/financing.jpg' %}" class="card-img-top" alt="Financing Service">
+                        <div class="card-img-overlay d-flex align-items-end">
+                            <div class="overlay-content text-white p-3">
+                                <h3 class="card-title">Financing</h3>
+                                <p class="card-text">Access affordable financing options to help cover your processing costs. Quick approval process and flexible terms.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Products Section - Updated Button -->
 <section class="bg-light py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Available Processors</h2>
+        <h2 class="text-center mb-5">Products We Process</h2>
         <div class="row g-4">
-            {% for processor in processors %}
-            <div class="col-md-6 col-lg-4">
+            {% for product in products %}
+            <div class="col-md-4">
                 <div class="card h-100">
-                    <div class="card-body">
-                        <h4 class="card-title">{{ processor.business_name }}</h4>
-                        <p class="card-text">
-                            <i class="fas fa-certificate text-primary"></i> {{ processor.certification }}<br>
-                            <i class="fas fa-phone text-primary"></i> {{ processor.contact_number }}<br>
-                            <i class="fas fa-map-marker-alt text-primary"></i> {{ processor.address }}
-                        </p>
-                        <h5 class="mt-3">Services Offered:</h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Service</th>
-                                        <th>Price/Unit</th>
-                                        <th>Min. Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for ps in processor.product_services.all %}
-                                    <tr>
-                                        <td>{{ ps.product.name }}</td>
-                                        <td>{{ ps.service.name }}</td>
-                                        <td>Ksh {{ ps.price_per_unit }}</td>
-                                        <td>{{ ps.min_amount }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ product.name }}</h4>
+                        <p class="card-text">{{ product.description }}</p>
+                        <a href="{% url 'processors_list' %}?product={{ product.id }}" 
+                           class="btn btn-custom-primary">
+                            Find Processors
+                        </a>
                     </div>
                 </div>
             </div>
@@ -143,18 +192,103 @@
     </div>
 </section>
 
-<!-- Call to Action -->
-<section class="bg-primary text-white text-center py-5">
+<!-- Updated Contact Section -->
+<section class="py-5" style="background-color: #edffc4;">
     <div class="container">
-        <h2 class="mb-4">Ready to Get Started?</h2>
-        {% if not user.is_authenticated %}
-            <div class="d-flex justify-content-center gap-3">
-                <a href="{% url 'register' %}" class="btn btn-light btn-lg">Register Now</a>
-                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h2 class="mb-4 text-dark">Get in Touch</h2>
+                <p class="text-dark mb-5">Have questions about FarmEase? We're here to help!</p>
             </div>
-        {% else %}
-            <a href="{% url 'farmer_dashboard' %}" class="btn btn-light btn-lg">Go to Dashboard</a>
-        {% endif %}
+        </div>
+        <div class="row">
+            <!-- Contact Info Cards -->
+            <div class="col-md-6 mb-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-envelope fa-2x mb-3" style="color: #fff4c4;"></i>
+                                <h5 class="card-title">Email Us</h5>
+                                <p class="card-text">support@farmease.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-phone fa-2x mb-3" style="color: #fff4c4;"></i>
+                                <h5 class="card-title">Call Us</h5>
+                                <p class="card-text">+254 712 345 678</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card h-100 border-0 shadow-sm mt-4">
+                            <div class="card-body text-center">
+                                <i class="fas fa-map-marker-alt fa-2x mb-3" style="color: #fff4c4;"></i>
+                                <h5 class="card-title">Visit Us</h5>
+                                <p class="card-text">Nairobi, Kenya</p>
+                                <img src="{% static 'user_app/images/office.jpg' %}" alt="Our Office" 
+                                     class="img-fluid rounded mt-3" style="max-height: 200px; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="text-center mb-4">Send us a Message</h4>
+                        <form>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Your Name" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Your Email" required>
+                            </div>
+                            <div class="mb-3">
+                                <select class="form-select">
+                                    <option selected disabled>Select Subject</option>
+                                    <option>General Inquiry</option>
+                                    <option>Technical Support</option>
+                                    <option>Feedback</option>
+                                    <option>Partnership</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control" rows="4" 
+                                          placeholder="Your Message" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-custom-primary w-100">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8 text-center">
+                <h4 class="mb-4">Connect With Us</h4>
+                <div class="social-links">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    
+                    <a href="#" class="social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 {% endblock %}
@@ -162,14 +296,32 @@
 {% block extra_css %}
 <style>
     .hero {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background: linear-gradient(135deg, #f8f9fa, #fff4c4);
+    }
+
+    .btn {
+        padding: 8px 24px;
+        font-size: 17px;
+        border-radius: 4px;
+    }
+
+    .btn-dark {
+        background-color: #000000;
+        color: #ffffff;
+        border: 1px solid #000000;
+    }
+
+    .btn-light {
+        background-color: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
     }
     
     .circle-step {
         width: 60px;
         height: 60px;
-        background-color: var(--primary-color);
-        color: white;
+        background-color: #fff4c4;
+        color: #000000;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -180,10 +332,130 @@
     
     .card {
         transition: transform 0.2s;
+        border: none;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     }
     
+    .social-links a {
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+        color: #fff4c4 !important;
+    }
+
+    .card .fas {
+        transition: transform 0.3s;
+    }
+
     .card:hover {
         transform: translateY(-5px);
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .text-primary {
+        color: #fff4c4 !important;
+    }
+
+    .service-card {
+        overflow: hidden;
+        border-radius: 15px;
+    }
+
+    .service-card .card-img-wrapper {
+        position: relative;
+        height: 300px;
+        overflow: hidden;
+    }
+
+    .service-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .service-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .service-card .card-img-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+        transition: all 0.3s ease;
+    }
+
+    .service-card .overlay-content {
+        width: 100%;
+        background: rgba(0,0,0,0.7);
+        border-radius: 10px;
+    }
+
+    .service-card:hover .card-img-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2));
+    }
+
+    .btn-custom-primary {
+        background-color: #edffc4;
+        color: #000000;
+        border: 1px solid #fff4c4;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-primary:hover {
+        background-color: #fff4c4;
+        border-color: #edffc4;
+        transform: translateY(-2px);
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #fff4c4;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #edffc4;
+        box-shadow: 0 0 0 0.2rem rgba(237, 255, 196, 0.25);
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background-color: #fff;
+        border-radius: 50%;
+        color: #000;
+        font-size: 24px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .social-link:hover {
+        transform: translateY(-5px);
+        background-color: #fff4c4;
+        color: #000;
+    }
+
+    .social-link i {
+        transition: transform 0.3s ease;
+    }
+
+    .social-link:hover i {
+        transform: scale(1.2);
     }
 </style>
 {% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'user_app/base.html' %}
+
+{% block title %}Our Processors - FarmEase{% endblock %}
+
+{% block content %}
+<!-- Filters Section -->
+<section class="py-4" style="background-color: #edffc4;">
+    <div class="container">
+        <h2 class="text-center mb-4">Find Processors</h2>
+        <form method="get" class="row g-3 justify-content-center">
+            <div class="col-md-4">
+                <select name="product" class="form-select custom-select">
+                    <option value="">All Products</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}" {% if selected_product == product.id|stringformat:"s" %}selected{% endif %}>
+                            {{ product.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="service" class="form-select custom-select">
+                    <option value="">All Services</option>
+                    {% for service in services %}
+                        <option value="{{ service.id }}" {% if selected_service == service.id|stringformat:"s" %}selected{% endif %}>
+                            {{ service.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-custom-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Processors List -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for processor in processors %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 processor-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h4 class="card-title">{{ processor.business_name }}</h4>
+                            <span class="badge bg-custom">Verified</span>
+                        </div>
+                        <p class="card-text">
+                            <i class="fas fa-map-marker-alt me-2" style="color: #fff4c4;"></i>{{ processor.address }}<br>
+                            <i class="fas fa-phone me-2" style="color: #fff4c4;"></i>{{ processor.contact_number }}
+                        </p>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button class="btn btn-outline-custom" data-bs-toggle="modal" 
+                                    data-bs-target="#processorModal{{ processor.id }}">
+                                View Details
+                            </button>
+                            {% if user.is_authenticated and user.userprofile.role == 'farmer' %}
+                            <a href="{% url 'farmer_register' %}?booking=true" 
+                               class="btn btn-custom-primary">
+                                Book Now
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for each processor -->
+            <div class="modal fade" id="processorModal{{ processor.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #edffc4;">
+                            <h5 class="modal-title">{{ processor.business_name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-certificate me-2" style="color: #fff4c4;"></i>Certification</h6>
+                                    <p>{{ processor.certification }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-map-marker-alt me-2" style="color: #fff4c4;"></i>Location</h6>
+                                    <p>{{ processor.address }}</p>
+                                </div>
+                            </div>
+
+                            <h6 class="mb-3">Services Offered:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead style="background-color: #edffc4;">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Service</th>
+                                            <th>Price/Unit</th>
+                                            <th>Min. Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ps in processor.product_services.all %}
+                                        <tr>
+                                            <td>{{ ps.product.name }}</td>
+                                            <td>{{ ps.service.name }}</td>
+                                            <td>Ksh {{ ps.price_per_unit }}</td>
+                                            <td>{{ ps.min_amount }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Close</button>
+                            {% if user.is_authenticated and user.userprofile.role == 'farmer' %}
+                            <a href="{% url 'farmer_register' %}?booking=true" class="btn btn-custom-primary">
+                                Book Services
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="lead">No processors found matching your criteria.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .processor-card {
+        border: none;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .processor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn-custom-primary {
+        background-color: #edffc4;
+        color: #000000;
+        border: 1px solid #fff4c4;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-primary:hover {
+        background-color: #fff4c4;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-custom {
+        color: #000000;
+        border: 1px solid #fff4c4;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-custom:hover {
+        background-color: #fff4c4;
+        transform: translateY(-2px);
+    }
+
+    .bg-custom {
+        background-color: #fff4c4;
+        color: #000000;
+    }
+
+    .custom-select {
+        border: 1px solid #fff4c4;
+        padding: 0.75rem;
+    }
+
+    .custom-select:focus {
+        border-color: #edffc4;
+        box-shadow: 0 0 0 0.2rem rgba(237, 255, 196, 0.25);
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .table th {
+        background-color: #edffc4;
+        border-color: #fff4c4;
+    }
+
+    .table td {
+        border-color: #fff4c4;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(237, 255, 196, 0.1);
+    }
+</style>
+{% endblock %}

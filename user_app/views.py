@@ -209,33 +209,88 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+# def home_view(request):
+#     # Fetch all processors with their related services and products efficiently
+#     processors = Processor.objects.prefetch_related(
+#         Prefetch(
+#             'product_services',
+#             queryset=ProductService.objects.select_related('product', 'service')
+#         )
+#     ).all()
+
+#     # Get unique products and services for filtering
+#     products = Product.objects.all()
+#     services = Service.objects.all()
+
+#     # Get some statistics for the homepage
+#     stats = {
+#         'processor_count': Processor.objects.count(),
+#         'farmer_count': Farmer.objects.count(),
+#         'booking_count': Booking.objects.count(),
+#         'product_count': Product.objects.count(),
+#     }
+
+#     context = {
+#         'processors': processors,
+#         'products': products,
+#         'services': services,
+#         'stats': stats,
+#         'featured_processors': processors[:3],  # Get first 3 processors for featured section
+#     }
+    
+#     return render(request, 'user_app/home.html', context)
+
+
 def home_view(request):
-    # Fetch all processors with their related services and products efficiently
-    processors = Processor.objects.prefetch_related(
-        Prefetch(
-            'product_services',
-            queryset=ProductService.objects.select_related('product', 'service')
-        )
-    ).all()
-
-    # Get unique products and services for filtering
-    products = Product.objects.all()
-    services = Service.objects.all()
-
-    # Get some statistics for the homepage
+    # Get statistics
     stats = {
         'processor_count': Processor.objects.count(),
         'farmer_count': Farmer.objects.count(),
         'booking_count': Booking.objects.count(),
         'product_count': Product.objects.count(),
     }
-
+    
+    # Get products we process
+    products = Product.objects.annotate(
+        service_count=Count('product_services')
+    ).filter(service_count__gt=0)
+    
+    # Get featured processors
+    featured_processors = Processor.objects.all()[:3]
+    
     context = {
-        'processors': processors,
-        'products': products,
-        'services': services,
         'stats': stats,
-        'featured_processors': processors[:3],  # Get first 3 processors for featured section
+        'products': products,
+        'featured_processors': featured_processors,
     }
     
     return render(request, 'user_app/home.html', context)
+
+def processors_list_view(request):
+    # Get filter parameters from URL
+    product_filter = request.GET.get('product')
+    service_filter = request.GET.get('service')
+    
+    # Start with all processors
+    processors = Processor.objects.prefetch_related(
+        Prefetch(
+            'product_services',
+            queryset=ProductService.objects.select_related('product', 'service')
+        )
+    )
+    
+    # Apply filters if provided
+    if product_filter:
+        processors = processors.filter(product_services__product_id=product_filter).distinct()
+    if service_filter:
+        processors = processors.filter(product_services__service_id=service_filter).distinct()
+
+    context = {
+        'processors': processors,
+        'products': Product.objects.all(),
+        'services': Service.objects.all(),
+        'selected_product': product_filter,
+        'selected_service': service_filter,
+    }
+    
+    return render(request, 'user_app/processors_list.html', context)

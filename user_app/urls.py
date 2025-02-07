@@ -12,5 +12,6 @@ urlpatterns = [
     path('api/get_product_services/', views.get_product_services, name='get_product_services'),
     path('logout', views.logout_view, name="logout"),
     path("choose_role/", views.choose_role_view, name="choose_role"),
+    path('processors/', views.processors_list_view, name='processors_list'),
 
 ]
